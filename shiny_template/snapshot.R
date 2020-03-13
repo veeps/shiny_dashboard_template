@@ -5,6 +5,7 @@ library(tidyverse)
 library(dplyr)
 library(scales)
 library(stringr)
+library(wesanderson)
 
 #read in data file
 df <- read.csv("data/train_clean.csv") %>%
@@ -15,91 +16,39 @@ df <- read.csv("data/train_clean.csv") %>%
 neighborhoods <- df %>%
   group_by(neighborhood) %>%
   summarise(
-    Avg.quality=percent(mean(overall_qual)),
-    Avg.year_built =as.integer(mean(year_built)),
-    Avg.living_area =as.integer(mean(gr_liv_area)),
-    Avg.price =as.integer(mean(saleprice)),
-    Total.sales = n()
-  ) %>%
-  arrange(-Total.sales)
+    avg_quality=percent(mean(overall_qual)),
+    avg_year_built =as.integer(mean(year_built)),
+    avg_living_area =as.integer(mean(gr_liv_area)),
+    avg_price =as.integer(mean(saleprice)),
+    total_sales = n()
+  ) %>%   filter(total_sales > 122) %>%
+  arrange(-total_sales)
 
 
 
-
-# see how many posts
-Q3_Tweets <- tweets_joe_q3 %>%
-  group_by(Category) %>%
-  count()
-
-Q3_Tweets$Percent.of.posts  <- (Q3_Tweets$n/nrow(tweets_joe_q3))*100
-colnames(Q3_Tweets) <- c("Category", "Total.posts" , "Percent.of.posts")
-
-class(Q3_Tweets$Percent.of.posts)
-#combine tables
-Q3_Overview_Tweets <- left_join(Q3_Overview, Q3_Tweets) 
-
-#Look at posts with links
-Q3_Overview_Tweets_Links <- Q3_Overview_Tweets %>% 
-  filter(!Category %in% c( "Inspiration", "Culture" , "Joe Status", "Reply", "Retweet", "Live tweet", "Inspirational Quote"))
-
-
-#Total tables
-Q3_Totals_Links <- Q3_Overview_Tweets_Links %>%
-  summarise(
-    Total.clicks = sum(Q3_Overview_Tweets$Total.clicks),
-   Total.posts = sum(Total.posts)
-  )
-
-
-
-###########
-
-#Look at Evergreen
-Evergreen <- tweets_joe_q3 %>%
-  filter(Category %in% "Evergreen") %>%
-  group_by(Challenge.Type) %>%
-  summarise(
-    Total.clicks=sum(url.clicks),
-    Avg.clicks =as.integer(mean(url.clicks))
-    #Total.engagements=sum(engagements),
-    #Avg.engagements =as.integer(mean(engagements)),
-    #Avg.engagement.rate=percent(mean(engagement.rate))
-  ) %>%
-  arrange(-Avg.clicks)
-
-# see how many posts
-Evergreen_Tweets <- tweets_joe_q3 %>%
-  filter(Category %in% "Evergreen") %>%
-  group_by(Challenge.Type) %>%
-  count() 
-
-colnames(Evergreen_Tweets) <- c("Challenge.Type", "Total.posts")
-
-#combine tables
-Evergreen_Overview_Tweets <- left_join(Evergreen, Evergreen_Tweets, by ="Challenge.Type") %>%
-  arrange(-Avg.clicks) %>%
-  top_n(10, wt="Avg.clicks")
 
 
 
 #chart summary of avg clicks by content 
-ggplot(Q3_Overview_Tweets_Links, aes(fill=Category, y=Avg.clicks, x=Category)) + 
-  geom_bar(position="dodge", stat="identity") + ggtitle("Q3 average clicks per tweet") +
-  labs(caption="Data pulled from Twitter Analytics between 07/01/2019-09/30/2019")+
-  labs(y="Average clicks")
+ggplot(neighborhoods, aes(fill=neighborhood, y=total_sales, x=neighborhood, )) + 
+  geom_bar(position="dodge", stat="identity") + ggtitle("Total Sales by Neighborhood") + 
+  scale_fill_manual(values = wes_palette("Darjeeling2")) + 
+  labs(y="Total Sales") + labs(x = "Neighborhood") + 
+  theme(axis.text.x = element_text(angle = 45),
+        legend.title = element_blank(), 
+        plot.background = element_rect(colour = "black",size = 1)) 
+
+#ggplot living area
+ggplot(neighborhoods, aes(fill=neighborhood, y=avg_living_area, x=neighborhood, )) + 
+  geom_bar(position="dodge", stat="identity") + ggtitle("Living Area by Neighborhood") + 
+  scale_fill_manual(values = wes_palette("Darjeeling1")) + 
+  labs(y="Average Living Area") + labs(x = "Neighborhood") + 
+  theme(axis.text.x = element_text(angle = 45),
+        legend.title = element_blank(),
+        plot.background = element_rect(colour = "black",size = 1),
+        plot.title = element_text(size=22, hjust = 0.5)) 
 
 
-#chart summary of total clicks by content 
-ggplot(Q3_Overview_Tweets_Links, aes(fill=Category, y=Total.clicks, x=Category)) + 
-  geom_bar(position="dodge", stat="identity") + ggtitle("Q3 total clicks per tweet") +
-  labs(caption="Data pulled from Twitter Analytics between 07/01/2019-09/30/2019")+
-  labs(y="Total clicks")
-
-#chart summary of tweets by content 
-ggplot(Q3_Overview_Tweets_Links, aes(fill=Category, y=Total.posts, x=Category)) + 
-  geom_bar(position="dodge", stat="identity") + ggtitle("Q3 Tweets by Category") +
-  labs(caption="Data pulled from Twitter Analytics between 07/01/2019-09/30/2019")+
-  labs(y="Total posts")
 
 
 colnames(Q3_Overview_Tweets_Links)

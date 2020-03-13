@@ -1,0 +1,72 @@
+@import url("//fonts.googleapis.com/css?family=Roboto");
+
+h2 {
+  font-family: 'Roboto-Bold';
+  font-weight: 500;
+  line-height: 1.1;
+  font-size: 50px;
+  color: #000000;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+h3 {
+  font-family: 'Roboto-Bold';
+  font-weight: 500;
+  font-size: 35px;
+  text-transform: uppercase;
+  line-height: 1.1;
+  color: #ffffff;
+  text-align: center;
+  background-color: #000000; 
+}
+
+
+h5 {
+  font-weight: 500;
+  font-size: 80px;
+  text-transform: uppercase;
+  line-height: 1.1;
+  color: #ffffff;
+  text-align: center;
+}
+
+h5 span { 
+  background-color: #000000; 
+}
+
+h6 {
+  font-family: "Roboto-Medium";
+  text-align: center;
+  font-size: 18px;
+  color: #ffffff;
+
+}
+
+h6 span{
+  background-color: #000000;
+  padding-left: 1.7em;
+  padding-right: 1.7em;
+}
+
+
+body {
+  font-family: 'Roboto-Medium';
+  color: #000000;
+}
+
+table td:first-child {
+  font-size:35px;
+  color: #056c9a;
+}
+
+.well{
+  border-radius: 0px;
+  background-color: #ffffff;
+  border-color: #000000;
+}
+
+.col-sm-4{
+  border-radius: 0px;
+  background-color: #ffffff;
+}

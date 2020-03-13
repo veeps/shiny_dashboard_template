@@ -6,133 +6,105 @@ library(tidyverse)
 library(dplyr)
 library(scales)
 library(DT)
+library(gridExtra)
 
 
 # Define UI ----
-ui <- fluidPage(div(style="padding-left: 30px", 
-  titlePanel("EDA Dashboard")),
+ui <- fluidPage(div(style="padding-left: 30px; padding-right: 30px", 
+  titlePanel("Housing Prices in Ames, Iowa"),
+  titlePanel(h3("Housing sales by neighborhood")),
+  p("For this project, I used the housing data from the Ames Assessor’s Office used to appraise the value for individual properties in 2006 to 2010. The data was split into training and 
+              testing data for the Kaggle competition. The data includes 81 features of each housing sale, including some ordinal (quality ratings), some nominal (classification of neighborhood, zone, sale type), 
+              and numeric (square feet, year built). The source for the Kaggle data is here."),
+  includeCSS("style.css"),
   
-  fluidRow (div(style="padding: 50px",
+  
+  fluidRow (div(style="padding: 20px",
     dataTableOutput("table_joe"))
   ),
   
   # Define the sidebar with one input
   sidebarPanel(
     selectInput(inputId="var_joe",
-                label = "Variable",
-                choices=c("Avg Engagements", "Avg Engagement Rate", "Avg Clicks", "Total Engagements", "Total Clicks"))
+                label = "Select a Variable",
+                choices=c("Living Area", "Year Built", "Quality", "Price", "Total Sales")),
+    fluidRow(h5(span("1,200")),
+             h6(span("Total homes sold"))),
   ),
   
-  mainPanel(plotOutput("plot1_joe"),
-            plotOutput("plot2_joe"))
-)
+  
+  mainPanel(
+          plotOutput("plot1_joe"))
+))
 
 
 # Define server logic ----
 server <- function(input, output) {
   
   #read in data file
-  tweets_joe <- read.csv("data/joe_tweets.csv") %>%
+  df <- read.csv("data/train_clean.csv") %>%
     as_data_frame()
   
+  
   #get summary table by content type
-  Summary_Content_Joe <- tweets_joe %>%
-    group_by(Content) %>%
+  neighborhoods <- df %>%
+    group_by(neighborhood) %>%
     summarise(
-      Avg.engagements =as.integer(mean(engagements)),
-      Avg.engagement.rate=percent(mean(engagement.rate)),
-      Avg.clicks =as.integer(mean(url.clicks)),
-      Total.engagements=sum(engagements),
-      Total.clicks=sum(url.clicks)
-    ) %>%
-    arrange(-Avg.clicks)
+      avg_quality=as.integer(mean(overall_qual)),
+      avg_year_built =as.integer(mean(year_built)),
+      avg_living_area =as.integer(mean(gr_liv_area)),
+      avg_price =as.integer(mean(saleprice)),
+      total_sales = n()
+    ) %>%   filter(total_sales > 122) %>%
+    arrange(-total_sales)
   
   
   
-  #get summary table for challenge posts
-  averages_Challenges_Joe <- tweets_joe %>%
-    filter(Content=="Challenge") %>%
-    group_by(Type) %>%
-    summarise(
-      Content="Challenge",
-      Avg.engagements =as.integer(mean(engagements)),
-      Avg.engagement.rate=percent(mean(engagement.rate)),
-      Avg.clicks =as.integer(mean(url.clicks)),
-      Total.engagements=sum(engagements),
-      Total.clicks=sum(url.clicks)
-    )
-  
-  #get summary table for inspiration posts
-  averages_Inspiration_Joe <- tweets_joe %>%
-    filter(Content=="Inspiration") %>%
-    group_by(Type) %>%
-    summarise(
-      Content="Inspiration",
-      Avg.engagements =as.integer(mean(engagements)),
-      Avg.engagement.rate=percent(mean(engagement.rate)),
-      Avg.clicks =as.integer(mean(url.clicks)),
-      Total.engagements=sum(engagements),
-      Total.clicks=sum(url.clicks)
-    )
-  
-  #combine tables by type
-  averages_Type_Joe <- rbind(averages_Challenges_Joe,averages_Inspiration_Joe)
-  
+ 
   #render data table
-  output$table_joe <- renderDataTable(Summary_Content_Joe, options=list(info = FALSE, paging = FALSE, searching = FALSE))
+  output$table_joe <- renderDataTable(neighborhoods, options=list(info = FALSE, paging = FALSE, searching = FALSE))
   
   #reactive axis and labels
   yaxis1_joe <- reactive({
-    if ( "Avg Engagements" %in% input$var_joe) return(Summary_Content_Joe$Avg.engagements)
-    if ( "Avg Engagement Rate" %in% input$var_joe) return(Summary_Content_Joe$Avg.engagement.rate)
-    if ( "Avg Clicks" %in% input$var_joe) return(Summary_Content_Joe$Avg.clicks)
-    if ( "Total Engagements" %in% input$var_joe) return(Summary_Content_Joe$Total.engagements)
-    if ( "Total Clicks" %in% input$var_joe) return(Summary_Content_Joe$Total.clicks)
+    if ( "Living Area" %in% input$var_joe) return(neighborhoods$avg_living_area)
+    if ( "Quality" %in% input$var_joe) return(neighborhoods$avg_quality)
+    if ( "Year Built" %in% input$var_joe) return(neighborhoods$avg_year_built)
+    if ( "Price" %in% input$var_joe) return(neighborhoods$avg_price)
+    if ( "Total Sales" %in% input$var_joe) return(neighborhoods$total_sales)
   })
   
-  yaxis2_joe <- reactive({
-    if ( "Avg Engagements" %in% input$var_joe) return(averages_Type_Joe$Avg.engagements)
-    if ( "Avg Engagement Rate" %in% input$var_joe) return(averages_Type_Joe$Avg.engagement.rate)
-    if ( "Avg Clicks" %in% input$var_joe) return(averages_Type_Joe$Avg.clicks)
-    if ( "Total Engagements" %in% input$var_joe) return(averages_Type_Joe$Total.engagements)
-    if ( "Total Clicks" %in% input$var_joe) return(averages_Type_Joe$Total.clicks)
+
+  graph_title <- reactive({
+    if ( "Living Area" %in% input$var_joe) return("Average Living Area per Neighborhood")
+    if ( "Quality" %in% input$var_joe) return("Average Quality Area per Neighborhood")
+    if ( "Year Built" %in% input$var_joe) return("Average Year Built per Neighborhood")
+    if ( "Price" %in% input$var_joe) return("Average Selling Price per Neighborhood")
+    if ( "Total Sales" %in% input$var_joe) return("Total Sales per Neighborhood")
   })
-  
-  graph_title_joe <- reactive({
-    if ( "Avg Engagements" %in% input$var_joe) return("Joe average engagements per tweet")
-    if ( "Avg Engagement Rate" %in% input$var_joe) return("Joe average engagement rate per tweet")
-    if ( "Avg Clicks" %in% input$var_joe) return("Joe average clicks per tweet")
-    if ( "Total Engagements" %in% input$var_joe) return("Joe total engagements per tweet")
-    if ( "Total Clicks" %in% input$var_joe) return("Joe total clicks per tweet")
-  })
-  
+
   y_label <- reactive({
-    if ( "Avg Engagements" %in% input$var_joe) return("Avg engagements per tweet")
-    if ( "Avg Engagement Rate" %in% input$var_joe) return("Avg engagement rate per tweet")
-    if ( "Avg Clicks" %in% input$var_joe) return("Avg clicks per tweet")
-    if ( "Total Engagements" %in% input$var_joe) return("Total engagements per tweet")
-    if ( "Total Clicks" %in% input$var_joe) return("Total clicks per tweet")
+    if ( "Living Area" %in% input$var_joe) return("Average Living Area")
+    if ( "Quality" %in% input$var_joe) return("Average Quality Area")
+    if ( "Year Built" %in% input$var_joe) return("Average Year Built")
+    if ( "Price" %in% input$var_joe) return("Average Selling Price")
+    if ( "Total Sales" %in% input$var_joe) return("Total Sales")
   })
-  
+
   
   output$plot1_joe <- renderPlot({
     
     # Render a barplot for content summary
-    ggplot(Summary_Content_Joe, aes(fill=Content, y=yaxis1_joe(), x=Content)) + 
-      geom_bar(position="dodge", stat="identity") +
-      labs(title=graph_title_joe(), caption="Data pulled from Twitter Analytics between 12/01/2018-01/31/2019")+
-      labs(y=y_label())
+    ggplot(neighborhoods, aes(fill=neighborhood, y=yaxis1_joe(), x=neighborhood)) + 
+      geom_bar(position="dodge", stat="identity") + ggtitle(graph_title()) + 
+      scale_fill_manual(values = wes_palette("Darjeeling2")) + 
+      labs(y=y_label()) + labs(x = "Neighborhood") + 
+      theme(axis.text.x = element_text(angle = 45),
+            legend.title = element_blank(), 
+            plot.background = element_rect(colour = "black",size = 1),
+            plot.title = element_text(size=22, hjust = 0.5)) 
   })
   
   
-  output$plot2_joe <- renderPlot({
-    
-    #render barplot by type
-    ggplot(averages_Type_Joe, aes(fill=Content, y=yaxis2_joe(), x=Type)) + 
-      geom_bar( stat="identity") + ggtitle("HITRECORD average clicks per tweet by post type") +
-      labs(title=graph_title_joe(), caption="Data pulled from Twitter Analytics between 12/01/2018-01/31/2019", y=y_label())
-    
-  })
   
 }
 
