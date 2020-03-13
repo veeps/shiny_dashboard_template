@@ -1,12 +1,7 @@
 library(shiny)
-library(ggplot2)
-library(tibble)
-library(magrittr)
 library(tidyverse)
-library(dplyr)
 library(scales)
 library(DT)
-library(gridExtra)
 
 
 # Define UI ----

@@ -1,0 +1,12 @@
+name: shiny_template
+title: shiny_template
+username:
+account: veeps
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 1944398
+bundleId: 2877507
+url: https://veeps.shinyapps.io/shiny_template/
+when: 1584084197.84065
+asMultiple: FALSE
+asStatic: FALSE
