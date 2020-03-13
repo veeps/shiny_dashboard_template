@@ -6,11 +6,14 @@ library(dplyr)
 library(scales)
 library(stringr)
 library(wesanderson)
+library(plotly)
 
 #read in data file
 df <- read.csv("data/train_clean.csv") %>%
   as_data_frame()
 
+
+max(df$year_built)
 
 #get summary table by content type
 neighborhoods <- df %>%
@@ -50,17 +53,30 @@ ggplot(neighborhoods, aes(fill=neighborhood, y=avg_living_area, x=neighborhood, 
 
 
 
+fig <- plot_ly(data = df, x = ~year_built, y = ~saleprice,
+               marker = list(size = 5),
+               text = ~paste("Price: ", saleprice, 'Year Built:', year_built),
+               color= ~neighborhood,
+               colors="Set1",
+               alpha=0.7)
 
-colnames(Q3_Overview_Tweets_Links)
-#chart summary of clicks by type 
-ggplot(Q3_Overview_Tweets_Links, aes(fill=Content, y=Avg.clicks, x=Type)) + 
-  geom_bar( stat="identity") + ggtitle("HITRECORD average clicks per tweet by post type") +
-  labs(caption="Data pulled from Twitter Analytics between 12/01/2018-01/07/2019", y="Average clicks")
+f <- list(
+  family = "Roboto-Bold",
+  size = 18,
+  color = "#000000"
+)
+x <- list(
+  title = "Year Built",
+  titlefont = f
+)
+y <- list(
+  title = "Sale Price",
+  titlefont = f
+)
 
 
 
-colnames(tweets_joe_q3)
-
+fig %>% layout(showlegend = FALSE ,xaxis = x, yaxis = y) 
 
 ############ Look at Zappos posts
 Zappos <- tweets_joe_q3 %>%

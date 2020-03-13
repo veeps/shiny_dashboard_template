@@ -5,9 +5,9 @@ account: veeps
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 1944398
-bundleId: 2877558
+bundleId: 2879939
 url: https://veeps.shinyapps.io/shiny_template/
-when: 1584086156.67427
+when: 1584141624.0823
 asMultiple: FALSE
 asStatic: FALSE
 ignoredFiles: .Rapp.history|data/joe_tweets.csv

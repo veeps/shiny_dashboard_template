@@ -49,6 +49,15 @@ h6 span{
   padding-right: 1.7em;
 }
 
+h6.small {
+  font-family: "Roboto-Medium";
+  padding-top: 40px;
+  text-align: center;
+  font-size: 60px;
+  color: #ffffff;
+
+}
+
 
 body {
   font-family: 'Roboto-Medium';
@@ -61,19 +70,42 @@ table td:first-child {
 }
 
 .well{
-  border-radius: 0px;
+  border-radius: 0;
   background-color: #ffffff;
   border-color: #000000;
 }
 
 .col-sm-4{
-  border-radius: 0px;
+  border-radius: 0;
   background-color: #ffffff;
 }
 
 .semicircle{
-	background-color: red;
+	background-color: #b5dcdd;
 	height: 125px;
 	width: 250px;
 	border-radius: 125px 125px 0 0 ;
+	top: 100px;
+  bottom: 0;
+  left: 0;
+  position: absolute;
+}
+
+.semicircle2{
+	background-color: #056c9a;
+	height: 125px;
+	width: 250px;
+	border-radius: 125px 125px 0 0 ;
+	top: 100px;
+  bottom: 0;
+  left: 0;
+  position: absolute;
+}
+
+
+.container{
+  background-color: #000000;
+  height: 225px;
+  width: 250px;
+  position: relative;
 }
