@@ -70,3 +70,10 @@ table td:first-child {
   border-radius: 0px;
   background-color: #ffffff;
 }
+
+.semicircle{
+	background-color: red;
+	height: 125px;
+	width: 250px;
+	border-radius: 125px 125px 0 0 ;
+}

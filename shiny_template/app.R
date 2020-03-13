@@ -2,10 +2,15 @@ library(shiny)
 library(tidyverse)
 library(scales)
 library(DT)
+library(ggplot2)
+library(tibble)
+library(magrittr)
+library(dplyr)
+library(wesanderson)
 
 
 # Define UI ----
-ui <- fluidPage(div(style="padding-left: 30px; padding-right: 30px", 
+ui <- fluidPage(div(style="padding-left: 200px; padding-right: 200px", 
   titlePanel("Housing Prices in Ames, Iowa"),
   titlePanel(h3("Housing sales by neighborhood")),
   p("For this project, I used the housing data from the Ames Assessor’s Office used to appraise the value for individual properties in 2006 to 2010. The data was split into training and 
@@ -24,12 +29,18 @@ ui <- fluidPage(div(style="padding-left: 30px; padding-right: 30px",
                 label = "Select a Variable",
                 choices=c("Living Area", "Year Built", "Quality", "Price", "Total Sales")),
     fluidRow(h5(span("1,200")),
-             h6(span("Total homes sold"))),
+             h6(span("Total homes sold")))
   ),
   
   
   mainPanel(
-          plotOutput("plot1_joe"))
+          plotOutput("plot1_joe")),
+  
+  fluidRow(div(style = "padding-top:500px;", 
+            p("For this project, I used the housing data from the Ames Assessor’s Office used to appraise the value for individual properties in 2006 to 2010. The data was split into training and 
+              testing data for the Kaggle competition. The data includes 81 features of each housing sale, including some ordinal (quality ratings), some nominal (classification of neighborhood, zone, sale type), 
+              and numeric (square feet, year built). The source for the Kaggle data is here.")))
+  #fluidRow(column(1, div(class="semicircle")))
 ))
 
 
